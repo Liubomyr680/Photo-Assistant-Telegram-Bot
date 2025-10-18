@@ -10,24 +10,36 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      # 1. Checkout source code
+      - name: Checkout repositor
         uses: actions/checkout@v3
 
+      # 2. Set up Java 17
       - name: Set up Java
         uses: actions/setup-java@v3
         with:
           java-version: '17'
           distribution: 'temurin'
 
+      # 3. Build JAR with Maven
       - name: Build with Maven
         run: mvn clean package -DskipTests
 
+      # 4. List target folder to verify the build
       - name: List JAR files
-        run: ls -R ./target
+        run: ls -lh ./target
 
-      - name: Deploy to Azure Web App
+      # 5. Package JAR as ZIP (for ZIP Deploy)
+      - name: Create deployment package
+        run: |
+          cd target
+          zip -r app.zip telegram-bot-0.0.1-SNAPSHOT.jar
+          cd ..
+
+      # 6. Deploy to Azure Web App using ZIP Deploy
+      - name: Deploy to Azure Web App (ZIP)
         uses: azure/webapps-deploy@v3
         with:
-          app-name: photo-assistant-webapp    # your App Service name
+          app-name: photo-assistant-webapp
           publish-profile: ${{ secrets.AZURE_PUBLISH_PROFILE }}
-          package: ./target/telegram-bot-0.0.1-SNAPSHOT.jar
+          package: ./target/app.zip
