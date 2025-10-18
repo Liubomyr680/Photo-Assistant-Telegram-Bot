@@ -1,9 +1,9 @@
-name: Deploy to Azure Web App
+name: Build and Deploy to Azure Web App
 
 on:
   push:
     branches:
-      - master   # Trigger deployment when you push to main branch
+      - master
 
 jobs:
   build-and-deploy:
@@ -11,10 +11,10 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
 
       - name: Set up Java
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v3
         with:
           java-version: '17'
           distribution: 'temurin'
@@ -22,9 +22,12 @@ jobs:
       - name: Build with Maven
         run: mvn clean package -DskipTests
 
+      - name: List JAR files
+        run: ls -R ./target
+
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
-          app-name: photo-assistant-webapp   # 👈 must match your Azure App Service name
+          app-name: photo-assistant-webapp    # your App Service name
           publish-profile: ${{ secrets.AZURE_PUBLISH_PROFILE }}
-          package: '${{ github.workspace }}/target/*.jar'
+          package: ./target/telegram-bot-0.0.1-SNAPSHOT.jar
