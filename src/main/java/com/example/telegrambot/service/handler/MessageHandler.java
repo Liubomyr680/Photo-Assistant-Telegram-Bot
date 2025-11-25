@@ -21,15 +21,17 @@ public class MessageHandler {
     private final List<InputHandler> handlers;
     private final UserStateService userStateService;
     private final GearChatMemoryService gearChatMemoryService;
+    private final LocationHandler locationHandler;
 
     public MessageHandler(
             List<InputHandler> handlers,
             UserStateService userStateService,
-            GearChatMemoryService gearChatMemoryService
-    ) {
+            GearChatMemoryService gearChatMemoryService,
+            LocationHandler locationHandler) {
         this.handlers = handlers;
         this.userStateService = userStateService;
         this.gearChatMemoryService = gearChatMemoryService;
+        this.locationHandler = locationHandler;
     }
 
     public SendMessage handleTextMessage(String chatId, Message messageText) {
@@ -44,8 +46,13 @@ public class MessageHandler {
 
             case "🏷️ Хештеги та Опис" -> handleCaptionMode(chatId);
 
-            case "💰 Прайс-калькулятор" ->
-                    new SendMessage(chatId, "Введіть тип зйомки та тривалість (наприклад: 'весілля 3 години') 💵");
+            case "💰 Прайс-калькулятор (функція недостпна)" ->
+                new SendMessage(chatId, "Введіть тип зйомки та тривалість (наприклад: 'весілля 3 години') 💵");
+
+            case "☀️ Golden Hour & Weather" -> {
+                userStateService.setUserState(chatId, UserState.GOLDEN_HOUR_MODE);
+                yield handleLocationMessage(chatId, messageText);
+            }
 
             case "📷 Підказки по Обладнанню" -> handleGearChatMode(chatId);
 
@@ -71,6 +78,11 @@ public class MessageHandler {
                 "📷 Надіслане фото не оброблено. Будь ласка, оберіть режим у меню.");
         msg.setReplyMarkup(KeyboardFactory.mainKeyboard());
         return msg;
+    }
+
+    public SendMessage handleLocationMessage(String chatId, Message message) {
+        logger.info("Received location from [{}]", chatId);
+        return locationHandler.handle(chatId, message);
     }
 
     private SendMessage handleCaptionMode(String chatId) {

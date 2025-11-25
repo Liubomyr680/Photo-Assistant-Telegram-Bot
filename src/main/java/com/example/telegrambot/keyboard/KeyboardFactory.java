@@ -20,7 +20,10 @@ public class KeyboardFactory {
         row3.add("📷 Підказки по Обладнанню");
         row3.add("💰 Прайс-калькулятор (функція недостпна)");
 
-        List<KeyboardRow> rows = List.of(row1, row2, row3);
+        KeyboardRow row4 = new KeyboardRow();
+        row4.add("☀️ Golden Hour & Weather");
+
+        List<KeyboardRow> rows = List.of(row1, row2, row3, row4);
 
         ReplyKeyboardMarkup markup = new ReplyKeyboardMarkup(rows);
         markup.setResizeKeyboard(true);

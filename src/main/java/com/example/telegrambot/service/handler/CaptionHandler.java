@@ -25,7 +25,7 @@ public class CaptionHandler implements InputHandler {
     private final OpenAiVisionService openAiVisionService;
 
     public CaptionHandler(TelegramFileService telegramFileService,
-                          OpenAiVisionService openAiVisionService) {
+            OpenAiVisionService openAiVisionService) {
         this.telegramFileService = telegramFileService;
         this.openAiVisionService = openAiVisionService;
     }
@@ -47,9 +47,11 @@ public class CaptionHandler implements InputHandler {
                     .getFileId();
 
             String fileUrl = telegramFileService.getFileUrl(fileId);
-            String aiReply = openAiVisionService.generateCaptionFromImageUrl(fileUrl, PromptTemplates.PHOTO_DESCRIPTION_PROMPT);
+            String aiReply = openAiVisionService.generateCaptionFromImageUrl(fileUrl,
+                    PromptTemplates.PHOTO_DESCRIPTION_PROMPT);
 
             SendMessage response = new SendMessage(chatId, aiReply);
+            response.setParseMode("Markdown");
             response.setReplyMarkup(KeyboardFactory.exitKeyboard());
             return response;
 
@@ -59,6 +61,3 @@ public class CaptionHandler implements InputHandler {
         }
     }
 }
-
-
-

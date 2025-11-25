@@ -23,8 +23,7 @@ public class PhotoAssistantBot extends TelegramLongPollingBot {
     public PhotoAssistantBot(
             @Value("${telegram.bot.username}") String botUsername,
             @Value("${telegram.bot.token}") String botToken,
-            MessageHandler messageHandler
-    ) {
+            MessageHandler messageHandler) {
         super(new DefaultBotOptions(), botToken);
         this.botUsername = botUsername;
         this.messageHandler = messageHandler;
@@ -58,7 +57,8 @@ public class PhotoAssistantBot extends TelegramLongPollingBot {
                     }
                     case "/help" -> {
                         logger.debug("User [{}] triggered /help command", chatId);
-                        response = new SendMessage(chatId, "📋 Доступні команди:\n/start - Почати роботу\n/help - Допомога");
+                        response = new SendMessage(chatId,
+                                "📋 Доступні команди:\n/start - Почати роботу\n/help - Допомога");
                     }
                     default -> {
                         logger.debug("User [{}] sent message for processing: {}", chatId, userText);
@@ -71,6 +71,10 @@ public class PhotoAssistantBot extends TelegramLongPollingBot {
             } else if (message.hasPhoto()) {
                 logger.debug("User [{}] sent a photo", chatId);
                 SendMessage response = messageHandler.handlePhotoMessage(chatId, message);
+                executeSafe(response);
+            } else if (message.hasLocation()) {
+                logger.debug("User [{}] sent a location", chatId);
+                SendMessage response = messageHandler.handleLocationMessage(chatId, message);
                 executeSafe(response);
             }
         }
@@ -89,4 +93,3 @@ public class PhotoAssistantBot extends TelegramLongPollingBot {
         return botUsername;
     }
 }
-
